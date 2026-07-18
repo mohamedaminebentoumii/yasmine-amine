@@ -5,57 +5,61 @@ import { SectionTitle } from '../components/SectionTitle';
 import { photos, type PhotoItem } from '../data/photos';
 import {
   compressImage,
-  loadStoredPhotos,
-  removeStoredPhoto,
-  requestPersistentStorage,
-  saveStoredPhoto,
-} from '../utils/localGallery';
+  deleteSharedPhoto,
+  listSharedPhotos,
+  uploadSharedPhoto,
+  type SharedPhoto,
+} from '../utils/sharedGallery';
 
 type FilterValue = 'Tous' | PhotoItem['tag'];
 
-type LocalPhoto = PhotoItem & { localId: number };
+type SharedGalleryItem = PhotoItem & { sharedName: string };
 
-const localTag = 'Mes photos' as const;
+const sharedTag = 'Mes photos' as const;
+
+function toGalleryItem(photo: SharedPhoto): SharedGalleryItem {
+  return {
+    src: photo.url,
+    tag: sharedTag,
+    caption: 'Notre souvenir',
+    alt: 'Photo ajoutee dans notre galerie partagee',
+    sharedName: photo.name,
+  };
+}
 
 export function GalleryPage() {
   const [filter, setFilter] = useState<FilterValue>('Tous');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([]);
+  const [sharedPhotos, setSharedPhotos] = useState<SharedGalleryItem[]>([]);
+  const [isLoadingShared, setIsLoadingShared] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
-  const [storageError, setStorageError] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const objectUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    loadStoredPhotos()
+    listSharedPhotos()
       .then((stored) => {
-        if (cancelled) {
-          return;
+        if (!cancelled) {
+          setSharedPhotos(stored.map(toGalleryItem));
         }
-
-        const mapped = stored.map((photo) => {
-          const url = URL.createObjectURL(photo.blob);
-          objectUrlsRef.current.push(url);
-          return {
-            src: url,
-            tag: localTag,
-            caption: 'Notre souvenir',
-            alt: `Photo ajoutee : ${photo.name}`,
-            localId: photo.id,
-          };
-        });
-        setLocalPhotos(mapped);
       })
       .catch(() => {
-        // Stockage local indisponible : la galerie de base reste fonctionnelle.
+        if (!cancelled) {
+          setStatusMessage(
+            'Galerie partagee momentanement indisponible. Verifie ta connexion.',
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoadingShared(false);
+        }
       });
 
     return () => {
       cancelled = true;
-      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      objectUrlsRef.current = [];
     };
   }, []);
 
@@ -65,38 +69,32 @@ export function GalleryPage() {
     }
 
     setIsImporting(true);
-    setStorageError('');
+    setStatusMessage('');
 
     try {
-      await requestPersistentStorage();
-
-      const added: LocalPhoto[] = [];
+      const added: SharedGalleryItem[] = [];
       for (const file of Array.from(files)) {
         if (!file.type.startsWith('image/')) {
           continue;
         }
 
         const blob = await compressImage(file);
-        const name = file.name.replace(/\.[^.]+$/, '') || 'souvenir';
-        const id = await saveStoredPhoto(blob, name);
-        const url = URL.createObjectURL(blob);
-        objectUrlsRef.current.push(url);
-        added.push({
-          src: url,
-          tag: localTag,
-          caption: 'Notre souvenir',
-          alt: `Photo ajoutee : ${file.name}`,
-          localId: id,
-        });
+        const stored = await uploadSharedPhoto(blob);
+        added.push(toGalleryItem(stored));
       }
 
-      setLocalPhotos((previous) => [...added, ...previous]);
+      setSharedPhotos((previous) => [...added, ...previous]);
       setFilter('Tous');
       setSelectedIndex(null);
+      if (added.length > 0) {
+        setStatusMessage(
+          added.length === 1
+            ? 'Photo ajoutee : elle est maintenant visible sur vos deux telephones.'
+            : `${added.length} photos ajoutees : elles sont maintenant visibles sur vos deux telephones.`,
+        );
+      }
     } catch {
-      setStorageError(
-        'Impossible d enregistrer sur cet appareil. Reessaie hors navigation privee.',
-      );
+      setStatusMessage("L envoi a echoue. Verifie ta connexion et reessaie.");
     } finally {
       setIsImporting(false);
       if (inputRef.current) {
@@ -105,41 +103,45 @@ export function GalleryPage() {
     }
   }
 
-  async function handleDelete(photo: LocalPhoto) {
-    try {
-      await removeStoredPhoto(photo.localId);
-    } catch {
-      // La photo disparait au moins de l affichage courant.
+  async function handleDelete(photo: SharedGalleryItem) {
+    const confirmed = window.confirm(
+      'Supprimer cette photo pour vous deux ? Elle disparaitra de tous les appareils.',
+    );
+    if (!confirmed) {
+      return;
     }
 
-    URL.revokeObjectURL(photo.src);
-    objectUrlsRef.current = objectUrlsRef.current.filter((url) => url !== photo.src);
-    setLocalPhotos((previous) =>
-      previous.filter((item) => item.localId !== photo.localId),
-    );
-    setSelectedIndex(null);
+    try {
+      await deleteSharedPhoto(photo.sharedName);
+      setSharedPhotos((previous) =>
+        previous.filter((item) => item.sharedName !== photo.sharedName),
+      );
+      setSelectedIndex(null);
+    } catch {
+      setStatusMessage('La suppression a echoue. Reessaie dans un instant.');
+    }
   }
 
   const allPhotos = useMemo<PhotoItem[]>(
-    () => [...localPhotos, ...photos],
-    [localPhotos],
+    () => [...sharedPhotos, ...photos],
+    [sharedPhotos],
   );
 
   const filters = useMemo<FilterValue[]>(() => {
     const base: FilterValue[] = ['Tous', ...new Set(photos.map((photo) => photo.tag))];
-    if (localPhotos.length > 0) {
-      base.splice(1, 0, localTag);
+    if (sharedPhotos.length > 0) {
+      base.splice(1, 0, sharedTag);
     }
     return base;
-  }, [localPhotos]);
+  }, [sharedPhotos]);
 
   const filteredPhotos = useMemo(
     () => allPhotos.filter((photo) => filter === 'Tous' || photo.tag === filter),
     [allPhotos, filter],
   );
 
-  function findLocalPhoto(photo: PhotoItem): LocalPhoto | undefined {
-    return localPhotos.find((item) => item.src === photo.src);
+  function findSharedPhoto(photo: PhotoItem): SharedGalleryItem | undefined {
+    return sharedPhotos.find((item) => item.src === photo.src);
   }
 
   return (
@@ -147,7 +149,7 @@ export function GalleryPage() {
       <SectionTitle
         eyebrow="Galerie"
         title="Nos souvenirs en lumiere"
-        description="Ajoute vos photos directement depuis le telephone : elles restent enregistrees sur cet appareil et reapparaissent a chaque visite."
+        description="Ajoutez vos photos depuis n importe quel telephone : elles sont enregistrees dans votre galerie partagee et visibles par vous deux."
       />
 
       <div className="flex flex-col items-center gap-3">
@@ -166,12 +168,18 @@ export function GalleryPage() {
           className="btn-gold inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-noir"
         >
           <NativeEmoji symbol="✨" label="Ajouter" className="text-sm" />
-          {isImporting ? 'Ajout en cours…' : 'Ajouter des photos'}
+          {isImporting ? 'Envoi en cours…' : 'Ajouter des photos'}
         </button>
-        {storageError ? (
-          <p className="text-sm font-semibold text-[#e0a184]" aria-live="polite">
-            {storageError}
+        {statusMessage ? (
+          <p
+            className="max-w-md text-center text-sm font-semibold text-beige/80"
+            aria-live="polite"
+          >
+            {statusMessage}
           </p>
+        ) : null}
+        {isLoadingShared ? (
+          <p className="text-sm text-beige/60">Chargement de vos photos partagees…</p>
         ) : null}
       </div>
 
@@ -195,7 +203,7 @@ export function GalleryPage() {
 
       <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {filteredPhotos.map((photo, index) => {
-          const localPhoto = findLocalPhoto(photo);
+          const sharedPhoto = findSharedPhoto(photo);
 
           return (
             <div key={`${photo.src}-${photo.caption}`} className="relative">
@@ -222,12 +230,12 @@ export function GalleryPage() {
                 </div>
               </button>
 
-              {localPhoto ? (
+              {sharedPhoto ? (
                 <button
                   type="button"
-                  onClick={() => void handleDelete(localPhoto)}
+                  onClick={() => void handleDelete(sharedPhoto)}
                   className="btn-outline-gold absolute right-3 top-3 z-10 rounded-full px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                  aria-label="Supprimer cette photo ajoutee"
+                  aria-label="Supprimer cette photo partagee"
                 >
                   Supprimer
                 </button>
