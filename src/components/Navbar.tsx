@@ -4,12 +4,12 @@ import { NativeEmoji } from './NativeEmoji';
 
 const links = [
   { to: '/', label: 'Accueil' },
+  { to: '/messages', label: 'Messages' },
   { to: '/histoire', label: 'Notre histoire' },
   { to: '/galerie', label: 'Galerie' },
   { to: '/jeu', label: 'Jeu' },
   { to: '/musique', label: 'Musique' },
   { to: '/lettre', label: 'Lettre' },
-  { to: '/messages', label: 'Nos mots' },
   { to: '/surprise', label: 'Surprise' },
 ];
 
