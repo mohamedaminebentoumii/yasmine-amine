@@ -5,10 +5,12 @@ import { SectionTitle } from '../components/SectionTitle';
 import { photos, type PhotoItem } from '../data/photos';
 import {
   compressImage,
+  deleteCaption,
   deleteSharedPhoto,
+  fetchCaptions,
   listSharedPhotos,
+  saveCaption,
   uploadSharedPhoto,
-  type SharedPhoto,
 } from '../utils/sharedGallery';
 
 type FilterValue = 'Tous' | PhotoItem['tag'];
@@ -16,16 +18,7 @@ type FilterValue = 'Tous' | PhotoItem['tag'];
 type SharedGalleryItem = PhotoItem & { sharedName: string };
 
 const sharedTag = 'Mes photos' as const;
-
-function toGalleryItem(photo: SharedPhoto): SharedGalleryItem {
-  return {
-    src: photo.url,
-    tag: sharedTag,
-    caption: 'Notre souvenir',
-    alt: 'Photo ajoutee dans notre galerie partagee',
-    sharedName: photo.name,
-  };
-}
+const defaultCaption = 'Notre souvenir';
 
 export function GalleryPage() {
   const [filter, setFilter] = useState<FilterValue>('Tous');
@@ -34,15 +27,29 @@ export function GalleryPage() {
   const [isLoadingShared, setIsLoadingShared] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pendingPreview, setPendingPreview] = useState('');
+  const [captionText, setCaptionText] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    listSharedPhotos()
-      .then((stored) => {
+    Promise.all([
+      listSharedPhotos(),
+      fetchCaptions().catch(() => ({}) as Record<string, string>),
+    ])
+      .then(([stored, captions]) => {
         if (!cancelled) {
-          setSharedPhotos(stored.map(toGalleryItem));
+          setSharedPhotos(
+            stored.map((photo) => ({
+              src: photo.url,
+              tag: sharedTag,
+              caption: captions[photo.name] || defaultCaption,
+              alt: 'Photo ajoutee dans notre galerie partagee',
+              sharedName: photo.name,
+            })),
+          );
         }
       })
       .catch(() => {
@@ -63,43 +70,79 @@ export function GalleryPage() {
     };
   }, []);
 
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) {
+  useEffect(() => {
+    return () => {
+      if (pendingPreview) {
+        URL.revokeObjectURL(pendingPreview);
+      }
+    };
+  }, [pendingPreview]);
+
+  function handleFiles(files: FileList | null) {
+    const images = Array.from(files ?? []).filter((file) =>
+      file.type.startsWith('image/'),
+    );
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+    if (images.length === 0) {
+      return;
+    }
+
+    setStatusMessage('');
+    setCaptionText('');
+    setPendingFiles(images);
+    setPendingPreview(URL.createObjectURL(images[0]));
+  }
+
+  function closeComposer() {
+    setPendingFiles([]);
+    setPendingPreview('');
+    setCaptionText('');
+  }
+
+  async function handleShare() {
+    if (pendingFiles.length === 0) {
       return;
     }
 
     setIsImporting(true);
     setStatusMessage('');
+    const caption = captionText.trim();
 
     try {
       const added: SharedGalleryItem[] = [];
-      for (const file of Array.from(files)) {
-        if (!file.type.startsWith('image/')) {
-          continue;
-        }
-
+      for (const file of pendingFiles) {
         const blob = await compressImage(file);
         const stored = await uploadSharedPhoto(blob);
-        added.push(toGalleryItem(stored));
+        if (caption) {
+          await saveCaption(stored.name, caption).catch(() => {
+            // Legende non enregistree : la photo reste partagee.
+          });
+        }
+        added.push({
+          src: stored.url,
+          tag: sharedTag,
+          caption: caption || defaultCaption,
+          alt: 'Photo ajoutee dans notre galerie partagee',
+          sharedName: stored.name,
+        });
       }
 
       setSharedPhotos((previous) => [...added, ...previous]);
       setFilter('Tous');
       setSelectedIndex(null);
-      if (added.length > 0) {
-        setStatusMessage(
-          added.length === 1
-            ? 'Photo ajoutee : elle est maintenant visible sur vos deux telephones.'
-            : `${added.length} photos ajoutees : elles sont maintenant visibles sur vos deux telephones.`,
-        );
-      }
+      closeComposer();
+      setStatusMessage(
+        added.length === 1
+          ? 'Photo partagee : elle est maintenant visible sur vos deux telephones.'
+          : `${added.length} photos partagees : elles sont maintenant visibles sur vos deux telephones.`,
+      );
     } catch {
       setStatusMessage("L envoi a echoue. Verifie ta connexion et reessaie.");
     } finally {
       setIsImporting(false);
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
     }
   }
 
@@ -113,6 +156,7 @@ export function GalleryPage() {
 
     try {
       await deleteSharedPhoto(photo.sharedName);
+      await deleteCaption(photo.sharedName);
       setSharedPhotos((previous) =>
         previous.filter((item) => item.sharedName !== photo.sharedName),
       );
@@ -149,7 +193,7 @@ export function GalleryPage() {
       <SectionTitle
         eyebrow="Galerie"
         title="Nos souvenirs en lumiere"
-        description="Ajoutez vos photos depuis n importe quel telephone : elles sont enregistrees dans votre galerie partagee et visibles par vous deux."
+        description="Ajoutez vos photos avec une legende, comme un post : elles rejoignent votre galerie partagee, visible par vous deux."
       />
 
       <div className="flex flex-col items-center gap-3">
@@ -159,7 +203,7 @@ export function GalleryPage() {
           accept="image/*"
           multiple
           className="hidden"
-          onChange={(event) => void handleFiles(event.target.files)}
+          onChange={(event) => handleFiles(event.target.files)}
         />
         <button
           type="button"
@@ -168,7 +212,7 @@ export function GalleryPage() {
           className="btn-gold inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-noir"
         >
           <NativeEmoji symbol="✨" label="Ajouter" className="text-sm" />
-          {isImporting ? 'Envoi en cours…' : 'Ajouter des photos'}
+          Ajouter des photos
         </button>
         {statusMessage ? (
           <p
@@ -237,6 +281,71 @@ export function GalleryPage() {
           );
         })}
       </section>
+
+      {pendingFiles.length > 0 ? (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-noir/80 px-4 py-8 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Nouvelle publication"
+          onClick={isImporting ? undefined : closeComposer}
+        >
+          <div
+            className="glass-card-strong w-full max-w-md p-4 sm:p-5"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="text-center text-sm font-bold uppercase tracking-[0.3em] text-gold">
+              Nouvelle publication
+            </p>
+
+            <div className="relative mt-4 flex max-h-[42vh] items-center justify-center overflow-hidden rounded-[1.2rem] bg-noir/60">
+              <img
+                src={pendingPreview}
+                alt="Apercu de la photo a partager"
+                className="max-h-[42vh] w-auto max-w-full object-contain"
+              />
+              {pendingFiles.length > 1 ? (
+                <span className="absolute right-2 top-2 rounded-full border border-gold/30 bg-noir/75 px-2.5 py-1 text-xs font-semibold text-beige backdrop-blur">
+                  +{pendingFiles.length - 1}
+                </span>
+              ) : null}
+            </div>
+
+            <label className="mt-4 block">
+              <span className="sr-only">Legende</span>
+              <textarea
+                value={captionText}
+                onChange={(event) => setCaptionText(event.target.value.slice(0, 220))}
+                placeholder="Ecris une legende…"
+                rows={3}
+                className="w-full resize-none rounded-[1.2rem] border border-gold/20 bg-noir/60 px-4 py-3 text-[17px] leading-6 text-ivory outline-none transition placeholder:text-beige/35 focus:border-gold/60 focus:ring-2 focus:ring-gold/20"
+              />
+            </label>
+            <p className="mt-1 text-right text-xs text-beige/45">
+              {captionText.length}/220
+            </p>
+
+            <div className="mt-3 flex gap-3">
+              <button
+                type="button"
+                disabled={isImporting}
+                onClick={closeComposer}
+                className="btn-outline-gold flex-1 rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isImporting}
+                onClick={() => void handleShare()}
+                className="btn-gold flex-1 rounded-full px-5 py-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-noir"
+              >
+                {isImporting ? 'Envoi…' : 'Partager'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {selectedIndex !== null ? (
         <Lightbox

@@ -70,6 +70,57 @@ export async function uploadSharedPhoto(blob: Blob): Promise<SharedPhoto> {
   return { name, url: publicUrl(name), createdAt: new Date().toISOString() };
 }
 
+/* Legendes : stockees dans la table photos_partagees (Data API).
+   Chaque fonction echoue en silence cote appelant si la table
+   n existe pas encore — la galerie reste fonctionnelle sans legendes. */
+
+export async function fetchCaptions(): Promise<Record<string, string>> {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/photos_partagees?select=nom_fichier,legende`,
+    { headers: authHeaders },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Legendes indisponibles (${response.status})`);
+  }
+
+  const rows = (await response.json()) as Array<{
+    nom_fichier: string;
+    legende: string | null;
+  }>;
+
+  const captions: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.legende) {
+      captions[row.nom_fichier] = row.legende;
+    }
+  }
+  return captions;
+}
+
+export async function saveCaption(name: string, caption: string): Promise<void> {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/photos_partagees`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({ nom_fichier: name, legende: caption }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Legende non enregistree (${response.status})`);
+  }
+}
+
+export async function deleteCaption(name: string): Promise<void> {
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/photos_partagees?nom_fichier=eq.${encodeURIComponent(name)}`,
+    { method: 'DELETE', headers: authHeaders },
+  );
+}
+
 export async function deleteSharedPhoto(name: string): Promise<void> {
   const response = await fetch(
     `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURIComponent(name)}`,
