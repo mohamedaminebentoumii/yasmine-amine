@@ -40,6 +40,7 @@ export const accessConfig = {
   title: 'Acces prive',
   description:
     'Entre le code pour ouvrir ce petit univers, comme on entrouvre une porte reservee a deux.',
+  hint: 'Indice : nos deux prenoms, l\'un contre l\'autre, en minuscules.',
   sessionKey: 'romantic-site-access',
 };
 
