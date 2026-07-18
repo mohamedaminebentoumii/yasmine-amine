@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Lightbox } from '../components/Lightbox';
 import { NativeEmoji } from '../components/NativeEmoji';
+import { StoryViewer } from '../components/StoryViewer';
 import { SectionTitle } from '../components/SectionTitle';
 import { photos, type PhotoItem } from '../data/photos';
 import {
@@ -452,14 +453,18 @@ export function GalleryPage() {
       ) : null}
 
       {storyHighlight && storyPhotos.length > 0 ? (
-        <Lightbox
+        <StoryViewer
           photos={storyPhotos}
           currentIndex={Math.min(storyIndex, storyPhotos.length - 1)}
           onClose={() => setStoryHighlight(null)}
-          onNext={() => setStoryIndex((prev) => (prev + 1) % storyPhotos.length)}
-          onPrevious={() =>
-            setStoryIndex((prev) => (prev - 1 + storyPhotos.length) % storyPhotos.length)
-          }
+          onNext={() => {
+            if (storyIndex >= storyPhotos.length - 1) {
+              setStoryHighlight(null);
+            } else {
+              setStoryIndex((prev) => prev + 1);
+            }
+          }}
+          onPrevious={() => setStoryIndex((prev) => Math.max(0, prev - 1))}
           onDelete={() => {
             const current =
               storyPhotos[Math.min(storyIndex, storyPhotos.length - 1)];
