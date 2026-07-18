@@ -345,7 +345,7 @@ export function GalleryPage() {
 
       {pendingFiles.length > 0 ? (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-noir/80 px-4 py-8 backdrop-blur-md"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-noir/80 px-4 py-8 backdrop-blur-md"
           role="dialog"
           aria-modal="true"
           aria-label="Nouvelle publication"

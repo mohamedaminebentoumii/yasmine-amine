@@ -41,7 +41,7 @@ export function StoryViewer({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex flex-col bg-noir/95 backdrop-blur-sm"
+      className="fixed inset-0 z-[120] flex flex-col bg-[#080605]"
       role="dialog"
       aria-modal="true"
       aria-label="Highlight"
@@ -64,7 +64,7 @@ export function StoryViewer({
         <img
           src={currentPhoto.src}
           alt={currentPhoto.alt}
-          className="absolute inset-0 h-full w-full object-contain p-2"
+          className="absolute inset-0 h-full w-full object-contain"
         />
 
         <button
