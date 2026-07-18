@@ -1,6 +1,6 @@
 import { withBaseUrl } from '../utils/withBaseUrl';
 
-export type PhotoTag = 'Voyages' | 'Moments' | 'Sourires';
+export type PhotoTag = 'Voyages' | 'Moments' | 'Sourires' | 'Mes photos';
 
 export type PhotoItem = {
   src: string;
