@@ -3,7 +3,6 @@ import { withBaseUrl } from '../utils/withBaseUrl';
 
 const fallbackPhoto = photos[0];
 const preferredPhoto = withBaseUrl('photos/yasmine.jpg');
-const compliment = 'Tu es la plus belle chose que mes yeux aient rencontree.';
 
 export function HeroPhoneMockup() {
   return (
@@ -38,9 +37,6 @@ export function HeroPhoneMockup() {
 
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,17,17,0.06),rgba(17,17,17,0.03)_35%,rgba(17,17,17,0.4)_100%)]" />
               <div className="absolute inset-x-0 top-0 h-[26%] bg-[linear-gradient(180deg,rgba(248,245,238,0.14),transparent)]" />
-              <div className="absolute bottom-[5.2rem] left-1/2 z-10 w-[82%] -translate-x-1/2 rounded-[2rem] border border-gold/30 bg-espresso/45 px-5 py-4 text-center text-ivory shadow-[0_18px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-                <p className="font-display text-[1.85rem] leading-[1.02]">{compliment}</p>
-              </div>
 
               <div className="absolute bottom-2.5 left-1/2 h-[4px] w-[7.2rem] -translate-x-1/2 rounded-full bg-ivory/60" />
             </div>

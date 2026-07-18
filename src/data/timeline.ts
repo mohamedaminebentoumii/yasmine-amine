@@ -28,6 +28,6 @@ export const timeline: TimelineStep[] = [
   {
     date: 'Aujourd hui',
     title: 'Toujours toi',
-    description: 'Une histoire qui continue de grandir avec Yasmine, nee a distance mais deja remplie de promesses, de douceur et d envie d aller plus loin ensemble.',
+    description: 'Une histoire qui continue de grandir jour apres jour, nee a distance mais deja remplie de promesses, de douceur et d envie d aller plus loin ensemble. Chaque message, chaque appel et chaque silence partage a rapproche deux vies qui n attendaient que de se trouver. Ce qui a commence par une simple story est devenu une certitude tranquille : celle d avancer cote a cote, de collectionner des souvenirs et d imaginer un avenir ou la distance ne sera plus qu un lointain souvenir.',
   },
 ];
