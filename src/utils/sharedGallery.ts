@@ -12,21 +12,31 @@ const authHeaders = {
 };
 
 export type SharedPhoto = {
+  /* Chemin complet dans le bucket, ex. "Vacances/171234-ab.jpg". */
   name: string;
   url: string;
   createdAt: string;
+  /* Nom du highlight (dossier), ou null pour la galerie generale. */
+  folder: string | null;
 };
 
 function publicUrl(name: string): string {
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(name)}`;
+  const encoded = name.split('/').map(encodeURIComponent).join('/');
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${encoded}`;
 }
 
-export async function listSharedPhotos(): Promise<SharedPhoto[]> {
+type StorageEntry = {
+  name: string;
+  id: string | null;
+  created_at: string;
+};
+
+async function listPrefix(prefix: string): Promise<StorageEntry[]> {
   const response = await fetch(`${SUPABASE_URL}/storage/v1/object/list/${BUCKET}`, {
     method: 'POST',
     headers: { ...authHeaders, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      prefix: '',
+      prefix,
       limit: 1000,
       sortBy: { column: 'created_at', order: 'desc' },
     }),
@@ -36,26 +46,55 @@ export async function listSharedPhotos(): Promise<SharedPhoto[]> {
     throw new Error(`Liste indisponible (${response.status})`);
   }
 
-  const items = (await response.json()) as Array<{
-    name: string;
-    id: string | null;
-    created_at: string;
-  }>;
+  return (await response.json()) as StorageEntry[];
+}
 
-  return items
+/* Liste la galerie generale (racine) et chaque highlight (dossier). */
+export async function listSharedPhotos(): Promise<SharedPhoto[]> {
+  const root = await listPrefix('');
+
+  const photos: SharedPhoto[] = root
     .filter((item) => Boolean(item.id))
     .map((item) => ({
       name: item.name,
       url: publicUrl(item.name),
       createdAt: item.created_at,
+      folder: null,
     }));
+
+  const folders = root.filter((item) => !item.id).map((item) => item.name);
+
+  const folderListings = await Promise.all(
+    folders.map(async (folder) => {
+      const items = await listPrefix(folder);
+      return items
+        .filter((item) => Boolean(item.id))
+        .map((item) => ({
+          name: `${folder}/${item.name}`,
+          url: publicUrl(`${folder}/${item.name}`),
+          createdAt: item.created_at,
+          folder,
+        }));
+    }),
+  );
+
+  for (const listing of folderListings) {
+    photos.push(...listing);
+  }
+
+  return photos.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export async function uploadSharedPhoto(blob: Blob): Promise<SharedPhoto> {
-  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+export async function uploadSharedPhoto(
+  blob: Blob,
+  folder: string | null = null,
+): Promise<SharedPhoto> {
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const name = folder ? `${folder}/${fileName}` : fileName;
+  const encoded = name.split('/').map(encodeURIComponent).join('/');
 
   const response = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${name}`,
+    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encoded}`,
     {
       method: 'POST',
       headers: { ...authHeaders, 'Content-Type': 'image/jpeg' },
@@ -67,7 +106,12 @@ export async function uploadSharedPhoto(blob: Blob): Promise<SharedPhoto> {
     throw new Error(`Envoi refuse (${response.status})`);
   }
 
-  return { name, url: publicUrl(name), createdAt: new Date().toISOString() };
+  return {
+    name,
+    url: publicUrl(name),
+    createdAt: new Date().toISOString(),
+    folder,
+  };
 }
 
 /* Legendes : stockees dans la table photos_partagees (Data API).
@@ -122,8 +166,9 @@ export async function deleteCaption(name: string): Promise<void> {
 }
 
 export async function deleteSharedPhoto(name: string): Promise<void> {
+  const encoded = name.split('/').map(encodeURIComponent).join('/');
   const response = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURIComponent(name)}`,
+    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encoded}`,
     {
       method: 'DELETE',
       headers: authHeaders,

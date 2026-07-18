@@ -11,7 +11,7 @@ export type PhotoItem = {
 
 export const photos: PhotoItem[] = [
   {
-    src: withBaseUrl('photos/photo01.jpg'),
+    src: withBaseUrl('photos/yasmine.jpg'),
     tag: 'Voyages',
     caption: 'Notre premiere escapade a deux',
     alt: 'Souvenir de voyage romantique en rose',
