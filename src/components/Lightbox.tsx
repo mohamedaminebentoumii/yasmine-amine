@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { PhotoItem } from '../data/photos';
 
 type LightboxProps = {
@@ -37,7 +38,15 @@ export function Lightbox({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose, onNext, onPrevious]);
 
-  return (
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  return createPortal(
     <div
       className="fixed inset-0 z-[110] flex items-center justify-center bg-noir/80 px-4 py-10 backdrop-blur-md"
       role="dialog"
@@ -101,6 +110,7 @@ export function Lightbox({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

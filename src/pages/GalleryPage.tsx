@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Lightbox } from '../components/Lightbox';
 import { NativeEmoji } from '../components/NativeEmoji';
 import { StoryViewer } from '../components/StoryViewer';
@@ -344,6 +345,7 @@ export function GalleryPage() {
       </section>
 
       {pendingFiles.length > 0 ? (
+        createPortal(
         <div
           className="fixed inset-0 z-[110] flex items-center justify-center bg-noir/80 px-4 py-8 backdrop-blur-md"
           role="dialog"
@@ -449,7 +451,9 @@ export function GalleryPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
+        )
       ) : null}
 
       {storyHighlight && storyPhotos.length > 0 ? (

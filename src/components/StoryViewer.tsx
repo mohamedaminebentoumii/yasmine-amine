@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { PhotoItem } from '../data/photos';
 
 type StoryViewerProps = {
@@ -39,7 +40,18 @@ export function StoryViewer({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose, onNext, onPrevious]);
 
-  return (
+  /* Bloque le defilement de la page tant que la story est ouverte. */
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  /* Rendu en portail directement dans <body> : aucun parent ne peut
+     decaler le plein ecran (bugs iOS avec position fixed imbrique). */
+  return createPortal(
     <div
       className="fixed inset-0 z-[120] flex flex-col bg-[#080605]"
       role="dialog"
@@ -116,6 +128,7 @@ export function StoryViewer({
           </svg>
         </button>
       ) : null}
-    </div>
+    </div>,
+    document.body,
   );
 }
