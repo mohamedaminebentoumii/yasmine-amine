@@ -330,6 +330,10 @@ body.app-standalone .access-gate-shell {
   --gate-ivoire: #f5f1eb;
   --gate-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --gate-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Police système Apple (San Francisco sur iPhone / Mac). */
+  --gate-font:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', system-ui, sans-serif;
 }
 
 /* Grid + pile de fallbacks viewport : le centrage flex avec min-height
@@ -342,6 +346,7 @@ body.app-standalone .access-gate-shell {
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
+  font-family: var(--gate-font);
   background: var(--gate-noir);
   padding-top: calc(var(--safe-top) + 1.5rem);
   padding-bottom: calc(var(--safe-bottom) + 1.5rem);
@@ -481,11 +486,11 @@ body.app-standalone .access-gate-shell {
 
 .gate-title {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 600;
-  font-size: clamp(3.3rem, 15vw, 4.6rem);
-  line-height: 0.98;
-  letter-spacing: -0.01em;
+  font-family: var(--gate-font);
+  font-weight: 700;
+  font-size: clamp(3rem, 13.5vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   color: var(--gate-ivoire);
 }
 
