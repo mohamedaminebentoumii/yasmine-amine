@@ -207,6 +207,42 @@
   }
 }
 
+/* Titre de section luxe : degrade ivoire -> or avec reflet lent. */
+.title-luxe {
+  background: linear-gradient(
+    110deg,
+    #f8f5ee 0%,
+    #f8f5ee 38%,
+    #e8d3a3 48%,
+    #c8a45d 58%,
+    #f8f5ee 72%,
+    #f8f5ee 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 8px 28px rgba(200, 164, 93, 0.22));
+  animation: title-shimmer 7s ease-in-out infinite;
+}
+
+@keyframes title-shimmer {
+  0%,
+  100% {
+    background-position: 110% 0;
+  }
+
+  50% {
+    background-position: -10% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-luxe {
+    animation: none;
+  }
+}
+
 /* iPhone / petits écrans : l'image couvre déjà en douceur, on retire le flou
    (coûteux sous Safari iOS) pour garder un défilement parfaitement fluide. */
 @media (max-width: 640px) {

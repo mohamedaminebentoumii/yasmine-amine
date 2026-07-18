@@ -4,13 +4,28 @@ export function ImportantDatesSection() {
   return (
     <section className="glass-card p-5 sm:p-8">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="mb-3 text-sm font-bold uppercase tracking-[0.35em] text-gold">
-          Nos dates importantes
-        </p>
-        <h2 className="font-display text-4xl font-semibold text-ivory sm:text-5xl">
+        <div className="mb-4 flex items-center justify-center gap-4">
+          <span
+            aria-hidden="true"
+            className="h-px w-8 bg-gradient-to-r from-transparent via-gold/50 to-gold sm:w-14"
+          />
+          <p className="text-xs font-bold uppercase tracking-[0.5em] text-gold sm:text-sm">
+            Nos dates importantes
+          </p>
+          <span
+            aria-hidden="true"
+            className="h-px w-8 bg-gradient-to-l from-transparent via-gold/50 to-gold sm:w-14"
+          />
+        </div>
+        <h2 className="title-luxe font-display text-4xl font-semibold italic leading-[1.08] sm:text-5xl">
           Les jours qu on n oublie pas
         </h2>
-        <p className="mt-4 text-base leading-8 text-beige/80 sm:text-lg">
+        <div aria-hidden="true" className="mt-5 flex items-center justify-center gap-2">
+          <span className="h-px w-16 bg-gradient-to-r from-transparent to-gold/60" />
+          <span className="h-1.5 w-1.5 rotate-45 bg-gold" />
+          <span className="h-px w-16 bg-gradient-to-l from-transparent to-gold/60" />
+        </div>
+        <p className="mt-5 text-base leading-8 text-beige/80 sm:text-lg">
           Une section dediee aux jours qui ont fait grandir votre histoire et qui
           meritaient un espace a eux seuls.
         </p>
