@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 import { NativeEmoji } from './NativeEmoji';
-import { accessConfig, siteIdentity } from '../data/content';
+import { accessConfig } from '../data/content';
 
 type AccessGateProps = {
   children: React.ReactNode;
@@ -28,6 +28,18 @@ export function useAccessGate() {
 
   return context;
 }
+
+const particles = [
+  { left: '12%', size: 4, delay: '0s', duration: '11s' },
+  { left: '24%', size: 3, delay: '2.4s', duration: '13s' },
+  { left: '38%', size: 5, delay: '1.1s', duration: '10s' },
+  { left: '50%', size: 3, delay: '4.2s', duration: '14s' },
+  { left: '61%', size: 4, delay: '0.6s', duration: '12s' },
+  { left: '72%', size: 3, delay: '3.3s', duration: '15s' },
+  { left: '83%', size: 5, delay: '1.8s', duration: '11.5s' },
+  { left: '91%', size: 3, delay: '5.1s', duration: '13.5s' },
+  { left: '7%', size: 3, delay: '6s', duration: '12.5s' },
+];
 
 export function AccessGate({ children }: AccessGateProps) {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -75,99 +87,64 @@ export function AccessGate({ children }: AccessGateProps) {
   }
 
   return (
-    <div className="access-gate-shell relative flex min-h-screen items-center justify-center overflow-hidden bg-noir px-4 py-10">
-      <div aria-hidden="true" className="jaguar-backdrop" />
-      <div aria-hidden="true" className="jaguar-overlay" />
-      <div aria-hidden="true" className="gold-sheen" />
-      <div className="absolute left-[8%] top-[18%] h-48 w-48 rounded-full bg-gold/10 blur-3xl" />
-      <div className="absolute bottom-[12%] right-[10%] h-72 w-72 rounded-full bg-fauve/25 blur-3xl" />
-
-      <div className="relative z-10 grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_420px]">
-        <section className="glass-card p-6 sm:p-10 lg:p-14">
-          <p className="text-sm font-bold uppercase tracking-[0.4em] text-gold">
-            {siteIdentity.badge}
-          </p>
-          <h1 className="mt-6 flex max-w-3xl items-center gap-3 font-display text-[2.75rem] leading-[0.92] text-ivory sm:text-7xl lg:text-8xl">
-            <span>{siteIdentity.title}</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-[1.1rem] border border-gold/30 bg-noir/50 shadow-gold sm:h-14 sm:w-14 lg:h-16 lg:w-16">
-              <NativeEmoji symbol="🐆" label="Jaguar" className="text-2xl sm:text-3xl lg:text-4xl" />
-            </span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-beige/85 sm:text-lg sm:leading-8 lg:text-xl">
-            {siteIdentity.subtitle}
-          </p>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            <div className="glass-inset p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Prive</p>
-              <span className="mt-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-gold/25 bg-espresso/70 shadow-gold">
-                <NativeEmoji symbol="✨" label="Prive" className="text-lg" />
-              </span>
-              <p className="mt-3 font-display text-3xl text-ivory">Acces filtre</p>
-            </div>
-            <div className="glass-inset p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Modulable</p>
-              <span className="mt-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-gold/25 bg-espresso/70 shadow-gold">
-                <NativeEmoji symbol="🐾" label="Empreinte" className="text-lg" />
-              </span>
-              <p className="mt-3 font-display text-3xl text-ivory">Code editable</p>
-            </div>
-            <div className="glass-inset p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Premium</p>
-              <span className="mt-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-gold/25 bg-espresso/70 shadow-gold">
-                <NativeEmoji symbol="🐆" label="Jaguar" className="text-lg" />
-              </span>
-              <p className="mt-3 font-display text-3xl text-ivory">Experience intime</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="glass-card-strong p-4 sm:p-8">
-          <div className="glass-inset p-5 sm:p-7">
-            <p className="text-xs font-bold uppercase tracking-[0.35em] text-gold">
-              {accessConfig.title}
-            </p>
-            <h2 className="mt-4 font-display text-4xl text-ivory">Code d entree</h2>
-            <p className="mt-4 text-sm leading-7 text-beige/80">{accessConfig.description}</p>
-
-            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-ivory">Entrer le code</span>
-                <input
-                  type="password"
-                  value={code}
-                  onChange={(event) => {
-                    setCode(event.target.value);
-                    if (error) {
-                      setError('');
-                    }
-                  }}
-                  placeholder="Ex: ROSE2026"
-                  className="w-full rounded-2xl border border-gold/25 bg-noir/60 px-4 py-4 text-base text-ivory outline-none transition placeholder:text-beige/35 focus:border-gold focus:ring-2 focus:ring-gold/25"
-                  aria-label="Code d acces"
-                />
-              </label>
-
-              <button
-                type="submit"
-                className="btn-gold inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-base font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-noir"
-              >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-noir/10">
-                  <NativeEmoji symbol="✨" label="Etincelles" className="text-sm" />
-                </span>
-                Entrer dans le site
-              </button>
-            </form>
-
-            <div className="mt-5 min-h-6">
-              <p className="text-sm font-medium text-beige/60">{accessConfig.hint}</p>
-              <p className="mt-2 text-sm font-semibold text-[#e0a184]" aria-live="polite">
-                {error}
-              </p>
-            </div>
-          </div>
-        </section>
+    <div className="access-gate-shell gate-root">
+      <div className="gate-bg" aria-hidden="true" />
+      <div className="gate-light" aria-hidden="true" />
+      <div className="gate-vignette" aria-hidden="true" />
+      <div className="gate-particles" aria-hidden="true">
+        {particles.map((particle, index) => (
+          <span
+            key={index}
+            style={{
+              left: particle.left,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              animationDelay: particle.delay,
+              animationDuration: particle.duration,
+            }}
+          />
+        ))}
       </div>
+
+      <main className="gate-content">
+        <div className="gate-logo">
+          <NativeEmoji symbol="🐆" label="Jaguar" />
+        </div>
+
+        <div className="gate-line" aria-hidden="true" />
+
+        <h1 className="gate-title">Pour toi.</h1>
+        <p className="gate-subtitle">Un univers créé uniquement pour toi.</p>
+
+        <form className="gate-card" onSubmit={handleSubmit}>
+          <label className="sr-only" htmlFor="gate-code">
+            Code d acces
+          </label>
+          <input
+            id="gate-code"
+            type="password"
+            value={code}
+            onChange={(event) => {
+              setCode(event.target.value);
+              if (error) {
+                setError('');
+              }
+            }}
+            placeholder="ROSE2026"
+            autoComplete="off"
+            className={`gate-input${error ? ' gate-shake' : ''}`}
+          />
+
+          <button type="submit" className="gate-button">
+            Entrer
+          </button>
+
+          <p className="gate-error" aria-live="polite">
+            {error}
+          </p>
+          <p className="gate-hint">{accessConfig.hint}</p>
+        </form>
+      </main>
     </div>
   );
 }
