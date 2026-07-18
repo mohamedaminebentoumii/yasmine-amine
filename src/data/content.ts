@@ -36,11 +36,10 @@ export const personalization = {
 };
 
 export const accessConfig = {
-  code: 'ROSE2026',
+  code: 'yasmineamine',
   title: 'Acces prive',
   description:
     'Entre le code pour ouvrir ce petit univers, comme on entrouvre une porte reservee a deux.',
-  hint: 'Indice optionnel : notre couleur preferee + 2026',
   sessionKey: 'romantic-site-access',
 };
 

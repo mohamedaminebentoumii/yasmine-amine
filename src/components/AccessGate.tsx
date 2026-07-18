@@ -130,7 +130,7 @@ export function AccessGate({ children }: AccessGateProps) {
                 setError('');
               }
             }}
-            placeholder="ROSE2026"
+            placeholder="Code secret"
             autoComplete="off"
             className={`gate-input${error ? ' gate-shake' : ''}`}
           />
