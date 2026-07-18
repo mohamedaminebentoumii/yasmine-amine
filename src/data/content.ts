@@ -79,12 +79,22 @@ export const qualities = [
   'La facon dont tu rends la vie plus belle.',
 ];
 
-export const romanticLetter = `Yasmine,
+export const romanticLetter = `À toi, et seulement à toi
 
-Tout a commence avec un geste simple : je t ai repondu a une story. Peut-etre que ca paraissait leger sur le moment, mais pour moi, c etait le debut de quelque chose de vrai.
+Si tu lis cette lettre, c’est que tu es arrivée jusqu’à l’endroit le plus sincère de ce site.
 
-Pendant trois mois, la distance a impose son rythme, mais elle a aussi donne a chaque echange une valeur particuliere. Plus les jours passaient, plus je sentais que ce lien prenait de la place dans mon coeur. Les kilometres etaient reels, mais ils n ont jamais empeche la douceur, l attente, l envie et tout ce qui nous rapprochait un peu plus chaque jour.
+Je n’ai pas voulu créer quelque chose d’impressionnant. J’ai voulu créer quelque chose qui te ressemble : simple, unique et rempli d’attention.
 
-Tu es venue chez ta famille le mardi 24 fevrier 2026, puis le jeudi 26 fevrier 2026, on s est captes. Ce moment a donne encore plus de realite a tout ce que je ressentais deja. Comme si notre histoire, nee a distance, etait enfin en train de prendre une forme qu on pouvait toucher.
+Depuis que tu fais partie de ma vie, j’ai compris qu’une personne pouvait changer la façon dont on voit les choses. Tu m’as appris que les plus beaux moments ne sont pas forcément les plus grands, mais ceux que l’on partage avec quelqu’un qui compte vraiment.
 
-Ce site parle de toi, de nous, et de tout ce que j ai envie de garder vivant. Pour toi, mon coeur. Aujourd hui, demain, et dans tous les chapitres qui nous attendent.`;
+Aujourd’hui, je ne te demande aucune réponse immédiate, aucune promesse. Je veux seulement que tu saches une chose : malgré les moments compliqués, malgré les doutes et les obstacles, les sentiments que j’ai pour toi sont réels.
+
+La vie ne sera jamais parfaite. Il y aura toujours des responsabilités, des journées difficiles et des défis. Mais je crois qu’une relation n’est pas faite pour alourdir nos vies ; elle est faite pour nous donner une raison de sourire, de nous relever et d’avancer ensemble.
+
+Si un jour tu regardes en arrière, j’espère que tu te souviendras d’une seule chose : il y a quelqu’un qui a choisi de rester sincère avec toi, de te respecter, de croire en nous, même quand les choses étaient compliquées.
+
+Je ne veux pas d’une histoire parfaite. Je veux une histoire vraie. Une histoire où l’on apprend, où l’on grandit, où l’on se soutient et où l’on construit quelque chose qui résiste au temps.
+
+Merci d’être toi.
+
+Et si un nouveau chapitre doit commencer, sache que je serai heureux de l’écrire avec toi.`;

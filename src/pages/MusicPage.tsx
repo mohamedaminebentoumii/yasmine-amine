@@ -1,5 +1,6 @@
 import { MusicPlayer } from '../components/MusicPlayer';
 import { SectionTitle } from '../components/SectionTitle';
+import { SpotifyPlayer } from '../components/SpotifyPlayer';
 import { playlist } from '../data/playlist';
 
 export function MusicPage() {
@@ -8,8 +9,11 @@ export function MusicPage() {
       <SectionTitle
         eyebrow="Musique"
         title="Une bande-son pour nous"
-        description="Deux titres placeholder sont inclus pour valider le lecteur. Remplace-les ensuite par vos vraies chansons dans le dossier public."
+        description="Notre playlist Spotify, et un petit lecteur integre pour vos fichiers personnels."
       />
+
+      <SpotifyPlayer />
+
       <MusicPlayer tracks={playlist} />
     </div>
   );
