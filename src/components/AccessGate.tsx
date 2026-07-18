@@ -142,7 +142,6 @@ export function AccessGate({ children }: AccessGateProps) {
           <p className="gate-error" aria-live="polite">
             {error}
           </p>
-          <p className="gate-hint">{accessConfig.hint}</p>
         </form>
       </main>
     </div>
