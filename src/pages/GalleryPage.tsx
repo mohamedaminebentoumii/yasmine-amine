@@ -109,8 +109,11 @@ export function GalleryPage() {
     }));
   }, [sharedPhotos]);
 
+  /* La grille n affiche que les posts : photos partagees hors highlight
+     + photos d origine du site. Les photos de highlight ne vivent que
+     dans leur cercle. */
   const allPhotos = useMemo<PhotoItem[]>(
-    () => [...sharedPhotos, ...photos],
+    () => [...sharedPhotos.filter((photo) => !photo.folder), ...photos],
     [sharedPhotos],
   );
 
@@ -215,7 +218,6 @@ export function GalleryPage() {
         previous.filter((item) => item.sharedName !== photo.sharedName),
       );
       setSelectedIndex(null);
-      setStoryHighlight(null);
     } catch {
       setStatusMessage('La suppression a echoue. Reessaie dans un instant.');
     }
@@ -458,6 +460,14 @@ export function GalleryPage() {
           onPrevious={() =>
             setStoryIndex((prev) => (prev - 1 + storyPhotos.length) % storyPhotos.length)
           }
+          onDelete={() => {
+            const current =
+              storyPhotos[Math.min(storyIndex, storyPhotos.length - 1)];
+            const shared = sharedPhotos.find((item) => item.src === current.src);
+            if (shared) {
+              void handleDelete(shared);
+            }
+          }}
         />
       ) : null}
 

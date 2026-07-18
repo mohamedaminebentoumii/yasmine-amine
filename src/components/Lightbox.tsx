@@ -7,6 +7,7 @@ type LightboxProps = {
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  onDelete?: () => void;
 };
 
 export function Lightbox({
@@ -15,6 +16,7 @@ export function Lightbox({
   onClose,
   onNext,
   onPrevious,
+  onDelete,
 }: LightboxProps) {
   const currentPhoto = photos[currentIndex];
 
@@ -69,7 +71,17 @@ export function Lightbox({
             </p>
             <p className="mt-1 font-display text-2xl text-ivory">{currentPhoto.caption}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="rounded-full border border-[#e0a184]/40 bg-noir/50 px-4 py-2 font-semibold text-[#e0a184] transition hover:border-[#e0a184] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                aria-label="Supprimer cette photo du highlight"
+              >
+                Supprimer
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={onPrevious}
