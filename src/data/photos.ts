@@ -7,6 +7,8 @@ export type PhotoItem = {
   tag: PhotoTag;
   caption: string;
   alt: string;
+  /* 'video' pour une video, sinon image (par defaut). */
+  kind?: 'image' | 'video';
 };
 
 export const photos: PhotoItem[] = [

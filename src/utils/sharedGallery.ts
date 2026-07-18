@@ -11,6 +11,8 @@ const authHeaders = {
   Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
 };
 
+export type MediaKind = 'image' | 'video';
+
 export type SharedPhoto = {
   /* Chemin complet dans le bucket, ex. "Vacances/171234-ab.jpg". */
   name: string;
@@ -18,7 +20,16 @@ export type SharedPhoto = {
   createdAt: string;
   /* Nom du highlight (dossier), ou null pour la galerie generale. */
   folder: string | null;
+  /* Type de media, deduit de l extension du fichier. */
+  kind: MediaKind;
 };
+
+const videoExtensions = ['mp4', 'mov', 'm4v', 'webm', 'ogg', 'ogv'];
+
+export function detectKind(name: string): MediaKind {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  return videoExtensions.includes(ext) ? 'video' : 'image';
+}
 
 function publicUrl(name: string): string {
   const encoded = name.split('/').map(encodeURIComponent).join('/');
@@ -60,6 +71,7 @@ export async function listSharedPhotos(): Promise<SharedPhoto[]> {
       url: publicUrl(item.name),
       createdAt: item.created_at,
       folder: null,
+      kind: detectKind(item.name),
     }));
 
   const folders = root.filter((item) => !item.id).map((item) => item.name);
@@ -74,6 +86,7 @@ export async function listSharedPhotos(): Promise<SharedPhoto[]> {
           url: publicUrl(`${folder}/${item.name}`),
           createdAt: item.created_at,
           folder,
+          kind: detectKind(item.name),
         }));
     }),
   );
@@ -85,11 +98,15 @@ export async function listSharedPhotos(): Promise<SharedPhoto[]> {
   return photos.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export async function uploadSharedPhoto(
+/* Envoie un media (image ou video). ext = extension sans point,
+   contentType = type MIME. */
+export async function uploadSharedMedia(
   blob: Blob,
-  folder: string | null = null,
+  folder: string | null,
+  ext: string,
+  contentType: string,
 ): Promise<SharedPhoto> {
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const name = folder ? `${folder}/${fileName}` : fileName;
   const encoded = name.split('/').map(encodeURIComponent).join('/');
 
@@ -97,7 +114,7 @@ export async function uploadSharedPhoto(
     `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encoded}`,
     {
       method: 'POST',
-      headers: { ...authHeaders, 'Content-Type': 'image/jpeg' },
+      headers: { ...authHeaders, 'Content-Type': contentType },
       body: blob,
     },
   );
@@ -111,6 +128,7 @@ export async function uploadSharedPhoto(
     url: publicUrl(name),
     createdAt: new Date().toISOString(),
     folder,
+    kind: detectKind(name),
   };
 }
 

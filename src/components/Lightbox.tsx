@@ -73,13 +73,7 @@ export function Lightbox({
             className="max-h-[70vh] w-auto max-w-full object-contain"
           />
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-gold">
-              {currentPhoto.tag}
-            </p>
-            <p className="mt-1 font-display text-2xl text-ivory">{currentPhoto.caption}</p>
-          </div>
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-4">
           <div className="flex flex-wrap gap-2">
             {onDelete ? (
               <button

@@ -12,14 +12,29 @@ import {
   fetchCaptions,
   listSharedPhotos,
   saveCaption,
-  uploadSharedPhoto,
+  uploadSharedMedia,
 } from '../utils/sharedGallery';
 
 type SharedGalleryItem = PhotoItem & { sharedName: string; folder: string | null };
 
+// Taille max conseillee pour une video (limite Supabase par defaut).
+const maxVideoBytes = 50 * 1024 * 1024;
+
+function videoExtension(file: File): string {
+  const fromName = file.name.split('.').pop()?.toLowerCase();
+  if (fromName && fromName.length <= 4) {
+    return fromName;
+  }
+  if (file.type === 'video/quicktime') {
+    return 'mov';
+  }
+  return 'mp4';
+}
+
 type Highlight = {
   name: string;
   cover: string;
+  coverKind?: 'image' | 'video';
   photos: SharedGalleryItem[];
 };
 
@@ -60,9 +75,10 @@ export function GalleryPage() {
               src: photo.url,
               tag: 'Mes photos' as const,
               caption: captions[photo.name] || defaultCaption,
-              alt: 'Photo ajoutee dans notre galerie partagee',
+              alt: 'Souvenir ajoute dans notre galerie partagee',
               sharedName: photo.name,
               folder: photo.folder,
+              kind: photo.kind,
             })),
           );
         }
@@ -107,6 +123,7 @@ export function GalleryPage() {
     return [...groups.entries()].map(([name, items]) => ({
       name,
       cover: items[0].src,
+      coverKind: items[0].kind,
       photos: items,
     }));
   }, [sharedPhotos]);
@@ -127,14 +144,14 @@ export function GalleryPage() {
   }, [highlights, storyHighlight]);
 
   function handleFiles(files: FileList | null) {
-    const images = Array.from(files ?? []).filter((file) =>
-      file.type.startsWith('image/'),
+    const medias = Array.from(files ?? []).filter(
+      (file) => file.type.startsWith('image/') || file.type.startsWith('video/'),
     );
 
     if (inputRef.current) {
       inputRef.current.value = '';
     }
-    if (images.length === 0) {
+    if (medias.length === 0) {
       return;
     }
 
@@ -142,9 +159,11 @@ export function GalleryPage() {
     setCaptionText('');
     setDestination(rootDestination);
     setNewHighlightName('');
-    setPendingFiles(images);
-    setPendingPreview(URL.createObjectURL(images[0]));
+    setPendingFiles(medias);
+    setPendingPreview(URL.createObjectURL(medias[0]));
   }
+
+  const pendingIsVideo = pendingFiles[0]?.type.startsWith('video/') ?? false;
 
   function closeComposer() {
     setPendingFiles([]);
@@ -172,32 +191,56 @@ export function GalleryPage() {
 
     try {
       const added: SharedGalleryItem[] = [];
+      let skippedHeavy = false;
+
       for (const file of pendingFiles) {
-        const blob = await compressImage(file);
-        const stored = await uploadSharedPhoto(blob, folder);
+        const isVideo = file.type.startsWith('video/');
+
+        if (isVideo && file.size > maxVideoBytes) {
+          skippedHeavy = true;
+          continue;
+        }
+
+        const stored = isVideo
+          ? await uploadSharedMedia(file, folder, videoExtension(file), file.type)
+          : await uploadSharedMedia(
+              await compressImage(file),
+              folder,
+              'jpg',
+              'image/jpeg',
+            );
+
         if (caption) {
           await saveCaption(stored.name, caption).catch(() => {
-            // Legende non enregistree : la photo reste partagee.
+            // Legende non enregistree : le media reste partage.
           });
         }
         added.push({
           src: stored.url,
           tag: 'Mes photos' as const,
           caption: caption || defaultCaption,
-          alt: 'Photo ajoutee dans notre galerie partagee',
+          alt: 'Souvenir ajoute dans notre galerie partagee',
           sharedName: stored.name,
           folder: stored.folder,
+          kind: stored.kind,
         });
       }
 
       setSharedPhotos((previous) => [...added, ...previous]);
       setSelectedIndex(null);
       closeComposer();
-      setStatusMessage(
-        added.length === 1
-          ? 'Photo partagee : elle est maintenant visible sur vos deux telephones.'
-          : `${added.length} photos partagees : elles sont maintenant visibles sur vos deux telephones.`,
-      );
+
+      if (added.length > 0) {
+        setStatusMessage(
+          added.length === 1
+            ? 'Souvenir partage : il est maintenant visible sur vos deux telephones.'
+            : `${added.length} souvenirs partages : visibles sur vos deux telephones.`,
+        );
+      } else if (skippedHeavy) {
+        setStatusMessage(
+          'Video trop lourde (max 50 Mo). Essaie une video plus courte.',
+        );
+      }
     } catch {
       setStatusMessage("L envoi a echoue. Verifie ta connexion et reessaie.");
     } finally {
@@ -207,7 +250,7 @@ export function GalleryPage() {
 
   async function handleDelete(photo: SharedGalleryItem) {
     const confirmed = window.confirm(
-      'Supprimer cette photo pour vous deux ? Elle disparaitra de tous les appareils.',
+      'Supprimer ce souvenir pour vous deux ? Il disparaitra de tous les appareils.',
     );
     if (!confirmed) {
       return;
@@ -237,7 +280,7 @@ export function GalleryPage() {
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           className="hidden"
           onChange={(event) => handleFiles(event.target.files)}
@@ -249,7 +292,7 @@ export function GalleryPage() {
           className="btn-gold inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-noir"
         >
           <NativeEmoji symbol="✨" label="Ajouter" className="text-sm" />
-          Ajouter des photos
+          Ajouter photo ou video
         </button>
         {statusMessage ? (
           <p
@@ -260,7 +303,7 @@ export function GalleryPage() {
           </p>
         ) : null}
         {isLoadingShared ? (
-          <p className="text-sm text-beige/60">Chargement de vos photos partagees…</p>
+          <p className="text-sm text-beige/60">Chargement de vos souvenirs partages…</p>
         ) : null}
       </div>
 
@@ -278,12 +321,22 @@ export function GalleryPage() {
           >
             <span className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-deep p-[2.5px] shadow-gold transition duration-300 hover:shadow-gold-glow">
               <span className="h-full w-full overflow-hidden rounded-full border-2 border-noir">
-                <img
-                  src={highlight.cover}
-                  alt={`Highlight ${highlight.name}`}
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
+                {highlight.coverKind === 'video' ? (
+                  <video
+                    src={highlight.cover}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={highlight.cover}
+                    alt={`Highlight ${highlight.name}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </span>
             </span>
             <span className="w-full truncate text-center text-xs font-semibold text-beige/85">
@@ -320,12 +373,27 @@ export function GalleryPage() {
                 style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
               >
                 <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={photo.src}
-                    alt={photo.alt}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
+                  {photo.kind === 'video' ? (
+                    <>
+                      <video
+                        src={photo.src}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute bottom-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-noir/70 text-[10px] text-ivory backdrop-blur">
+                        ▶
+                      </span>
+                    </>
+                  ) : (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  )}
                 </div>
               </button>
 
@@ -362,11 +430,20 @@ export function GalleryPage() {
             </p>
 
             <div className="relative mt-4 flex max-h-[36vh] items-center justify-center overflow-hidden rounded-[1.2rem] bg-noir/60">
-              <img
-                src={pendingPreview}
-                alt="Apercu de la photo a partager"
-                className="max-h-[36vh] w-auto max-w-full object-contain"
-              />
+              {pendingIsVideo ? (
+                <video
+                  src={pendingPreview}
+                  controls
+                  playsInline
+                  className="max-h-[36vh] w-auto max-w-full object-contain"
+                />
+              ) : (
+                <img
+                  src={pendingPreview}
+                  alt="Apercu du souvenir a partager"
+                  className="max-h-[36vh] w-auto max-w-full object-contain"
+                />
+              )}
               {pendingFiles.length > 1 ? (
                 <span className="absolute right-2 top-2 rounded-full border border-gold/30 bg-noir/75 px-2.5 py-1 text-xs font-semibold text-beige backdrop-blur">
                   +{pendingFiles.length - 1}
