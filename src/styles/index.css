@@ -11,7 +11,7 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     color: #e8d3a3;
-    background: #111111;
+    background: #0b0908;
     font-family: Manrope, system-ui, sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -32,7 +32,7 @@
     margin: 0;
     min-width: 320px;
     min-height: 100%;
-    background: #111111;
+    background: #0b0908;
     overscroll-behavior-y: none;
   }
 
@@ -332,11 +332,14 @@ body.app-standalone .access-gate-shell {
   --gate-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Grid + pile de fallbacks viewport : le centrage flex avec min-height
+   est buggé sous Safari iOS ; grid centre correctement, et 100vh sert
+   de filet là où dvh n'existe pas. */
 .gate-root {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
   background: var(--gate-noir);
@@ -471,8 +474,8 @@ body.app-standalone .access-gate-shell {
 /* Fine ligne dorée reliant le logo au titre. */
 .gate-line {
   width: 1px;
-  height: 44px;
-  margin: 18px 0 20px;
+  height: 36px;
+  margin: 14px 0 16px;
   background: linear-gradient(180deg, rgba(230, 195, 106, 0.7), transparent);
 }
 
