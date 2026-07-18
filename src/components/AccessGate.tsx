@@ -6,8 +6,8 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { NativeEmoji } from './NativeEmoji';
 import { accessConfig } from '../data/content';
+import ringLogo from '../assets/ring-logo.png';
 
 type AccessGateProps = {
   children: React.ReactNode;
@@ -107,8 +107,8 @@ export function AccessGate({ children }: AccessGateProps) {
       </div>
 
       <main className="gate-content">
-        <div className="gate-logo">
-          <NativeEmoji symbol="🐆" label="Jaguar" />
+        <div className="gate-ring-glow">
+          <img src={ringLogo} alt="Bague" className="gate-ring" />
         </div>
 
         <div className="gate-line" aria-hidden="true" />
