@@ -44,7 +44,7 @@ export function Lightbox({
       onClick={onClose}
     >
       <div
-        className="glass-card-strong relative max-w-4xl p-4"
+        className="glass-card-strong relative w-full max-w-4xl p-3 sm:p-4"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -55,12 +55,14 @@ export function Lightbox({
         >
           Fermer
         </button>
-        <img
-          src={currentPhoto.src}
-          alt={currentPhoto.alt}
-          className="max-h-[75vh] w-full rounded-[1.5rem] object-cover"
-        />
-        <div className="mt-4 flex items-center justify-between gap-4">
+        <div className="flex max-h-[70vh] items-center justify-center overflow-hidden rounded-[1.5rem] bg-noir/60">
+          <img
+            src={currentPhoto.src}
+            alt={currentPhoto.alt}
+            className="max-h-[70vh] w-auto max-w-full object-contain"
+          />
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-gold">
               {currentPhoto.tag}

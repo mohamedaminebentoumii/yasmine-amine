@@ -201,7 +201,7 @@ export function GalleryPage() {
         ))}
       </div>
 
-      <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid grid-cols-3 gap-1.5 sm:gap-3">
         {filteredPhotos.map((photo, index) => {
           const sharedPhoto = findSharedPhoto(photo);
 
@@ -210,23 +210,16 @@ export function GalleryPage() {
               <button
                 type="button"
                 onClick={() => setSelectedIndex(index)}
-                className="glass-card group block w-full animate-fade-up overflow-hidden text-left transition duration-300 hover:-translate-y-1 hover:shadow-gold-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                style={{ animationDelay: `${index * 60}ms` }}
+                className="group block w-full animate-fade-up overflow-hidden rounded-[10px] border border-gold/15 bg-espresso/60 transition duration-300 hover:shadow-gold-glow sm:rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
               >
-                <div className="relative aspect-[4/5] overflow-hidden">
+                <div className="relative aspect-square overflow-hidden">
                   <img
                     src={photo.src}
                     alt={photo.alt}
                     loading="lazy"
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-noir/70 via-transparent to-transparent opacity-80 transition group-hover:opacity-95" />
-                </div>
-                <div className="p-5">
-                  <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">
-                    {photo.tag}
-                  </p>
-                  <p className="mt-2 font-display text-2xl text-ivory">{photo.caption}</p>
                 </div>
               </button>
 
@@ -234,10 +227,10 @@ export function GalleryPage() {
                 <button
                   type="button"
                   onClick={() => void handleDelete(sharedPhoto)}
-                  className="btn-outline-gold absolute right-3 top-3 z-10 rounded-full px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="absolute right-1.5 top-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-gold/30 bg-noir/70 text-xs font-semibold text-beige backdrop-blur transition hover:text-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                   aria-label="Supprimer cette photo partagee"
                 >
-                  Supprimer
+                  ✕
                 </button>
               ) : null}
             </div>
