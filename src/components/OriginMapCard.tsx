@@ -2,9 +2,9 @@ import { personalization } from '../data/content';
 
 export function OriginMapCard() {
   return (
-    <section className="glass-card p-7">
+    <section className="glass-card p-5 sm:p-7">
       <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="glass-inset p-7">
+        <div className="glass-inset p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold">Memoire</p>
           <h2 className="mt-4 font-display text-4xl leading-tight text-ivory">
             {personalization.originStory.title}

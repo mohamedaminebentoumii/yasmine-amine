@@ -83,17 +83,17 @@ export function AccessGate({ children }: AccessGateProps) {
       <div className="absolute bottom-[12%] right-[10%] h-72 w-72 rounded-full bg-fauve/25 blur-3xl" />
 
       <div className="relative z-10 grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_420px]">
-        <section className="glass-card p-8 sm:p-10 lg:p-14">
+        <section className="glass-card p-6 sm:p-10 lg:p-14">
           <p className="text-sm font-bold uppercase tracking-[0.4em] text-gold">
             {siteIdentity.badge}
           </p>
-          <h1 className="mt-6 flex max-w-3xl items-center gap-3 font-display text-6xl leading-[0.92] text-ivory sm:text-7xl lg:text-8xl">
+          <h1 className="mt-6 flex max-w-3xl items-center gap-3 font-display text-[2.75rem] leading-[0.92] text-ivory sm:text-7xl lg:text-8xl">
             <span>{siteIdentity.title}</span>
-            <span className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] border border-gold/30 bg-noir/50 shadow-gold sm:h-14 sm:w-14 lg:h-16 lg:w-16">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[1.1rem] border border-gold/30 bg-noir/50 shadow-gold sm:h-14 sm:w-14 lg:h-16 lg:w-16">
               <NativeEmoji symbol="🐆" label="Jaguar" className="text-2xl sm:text-3xl lg:text-4xl" />
             </span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-beige/85 sm:text-xl">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-beige/85 sm:text-lg sm:leading-8 lg:text-xl">
             {siteIdentity.subtitle}
           </p>
 
@@ -122,8 +122,8 @@ export function AccessGate({ children }: AccessGateProps) {
           </div>
         </section>
 
-        <section className="glass-card-strong p-7 sm:p-8">
-          <div className="glass-inset p-7">
+        <section className="glass-card-strong p-4 sm:p-8">
+          <div className="glass-inset p-5 sm:p-7">
             <p className="text-xs font-bold uppercase tracking-[0.35em] text-gold">
               {accessConfig.title}
             </p>

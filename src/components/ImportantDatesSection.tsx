@@ -2,7 +2,7 @@ import { importantDates } from '../data/importantDates';
 
 export function ImportantDatesSection() {
   return (
-    <section className="glass-card p-8">
+    <section className="glass-card p-5 sm:p-8">
       <div className="mx-auto max-w-3xl text-center">
         <p className="mb-3 text-sm font-bold uppercase tracking-[0.35em] text-gold">
           Nos dates importantes

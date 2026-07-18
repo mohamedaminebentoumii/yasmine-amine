@@ -207,6 +207,21 @@
   }
 }
 
+/* iPhone / petits écrans : l'image couvre déjà en douceur, on retire le flou
+   (coûteux sous Safari iOS) pour garder un défilement parfaitement fluide. */
+@media (max-width: 640px) {
+  .jaguar-backdrop {
+    filter: saturate(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-sheen::before,
+  .gold-sheen::after {
+    animation: none;
+  }
+}
+
 @keyframes sheen-drift {
   from {
     transform: translate3d(0, 0, 0);

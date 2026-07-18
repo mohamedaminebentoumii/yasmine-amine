@@ -20,13 +20,13 @@ export function HomePage() {
           <p className="inline-flex rounded-full border border-gold/30 bg-espresso/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.38em] text-gold shadow-card backdrop-blur">
             {siteIdentity.badge}
           </p>
-          <p className="mt-6 bg-gold-cta bg-clip-text font-display text-6xl leading-none text-transparent sm:text-8xl lg:text-[7.5rem]">
+          <p className="mt-6 bg-gold-cta bg-clip-text font-display text-[3.4rem] leading-none text-transparent sm:text-8xl lg:text-[7.5rem]">
             {personalization.nickname}
           </p>
           <p className="mt-2 text-sm font-bold uppercase tracking-[0.35em] text-gold">
             {personalization.nicknameLabel}
           </p>
-          <h1 className="mt-7 flex max-w-4xl items-center gap-3 font-display text-[4rem] font-semibold leading-[0.9] text-ivory sm:text-[5.4rem]">
+          <h1 className="mt-7 flex max-w-4xl items-center gap-3 font-display text-[2.9rem] font-semibold leading-[0.9] text-ivory sm:text-[4.6rem] lg:text-[5.4rem]">
             <span>{siteIdentity.title}</span>
             <span className="flex h-10 w-10 items-center justify-center rounded-[1rem] border border-gold/30 bg-noir/50 shadow-gold sm:h-11 sm:w-11">
               <NativeEmoji symbol="🐆" label="Jaguar" className="text-xl sm:text-2xl" />

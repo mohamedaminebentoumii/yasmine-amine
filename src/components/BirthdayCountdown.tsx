@@ -61,8 +61,8 @@ export function BirthdayCountdown() {
   const year = countdown.targetDate.getFullYear();
 
   return (
-    <section className="glass-card p-7">
-      <div className="glass-inset p-7">
+    <section className="glass-card p-5 sm:p-7">
+      <div className="glass-inset p-5 sm:p-7">
         <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold">
           Anniversaire
         </p>
@@ -73,7 +73,7 @@ export function BirthdayCountdown() {
           Un petit rappel tendre pour attendre le prochain 27 avril.
         </p>
 
-        <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {[
             { value: countdown.days, label: 'jours' },
             { value: countdown.hours, label: 'heures' },
@@ -82,9 +82,9 @@ export function BirthdayCountdown() {
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-[1.6rem] border border-gold/20 bg-noir/45 p-5 text-center shadow-card"
+              className="rounded-[1.6rem] border border-gold/20 bg-noir/45 p-3 text-center sm:p-5 shadow-card"
             >
-              <p className="font-display text-5xl text-gold-light">
+              <p className="font-display text-4xl text-gold-light sm:text-5xl">
                 {item.value.toString().padStart(2, '0')}
               </p>
               <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] text-beige/60">

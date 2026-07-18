@@ -44,7 +44,7 @@ export function StoryPage() {
 
       <ImportantDatesSection />
 
-      <section className="glass-card p-8">
+      <section className="glass-card p-5 sm:p-8">
         <SectionTitle
           eyebrow="Ce que j aime chez toi"
           title="Huit raisons, et ce n est qu un debut"

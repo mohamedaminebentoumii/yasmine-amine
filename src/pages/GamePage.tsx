@@ -196,7 +196,7 @@ export function GamePage() {
               />
             </div>
 
-            <div className="relative min-h-[440px] overflow-hidden rounded-[1.7rem] border border-gold/15 bg-[radial-gradient(circle_at_top,rgba(90,58,34,0.5),rgba(17,17,17,0.72)_70%)]">
+            <div className="relative min-h-[360px] sm:min-h-[440px] overflow-hidden rounded-[1.7rem] border border-gold/15 bg-[radial-gradient(circle_at_top,rgba(90,58,34,0.5),rgba(17,17,17,0.72)_70%)]">
               <div className="absolute left-[8%] top-[14%] h-24 w-24 rounded-full bg-gold/10 blur-2xl" />
               <div className="absolute right-[10%] top-[24%] h-32 w-32 rounded-full bg-gold/10 blur-3xl" />
               <div className="absolute bottom-[10%] left-[18%] h-28 w-28 rounded-full bg-fauve/30 blur-2xl" />

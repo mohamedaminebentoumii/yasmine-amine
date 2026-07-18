@@ -109,9 +109,9 @@ export function MusicPlayer({ tracks }: MusicPlayerProps) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-      <section className="glass-card p-8">
+      <section className="glass-card p-5 sm:p-8">
         <div
-          className={`rounded-[1.75rem] border border-gold/25 bg-gradient-to-br ${currentTrack.accent} p-8 text-ivory shadow-card`}
+          className={`rounded-[1.75rem] border border-gold/25 bg-gradient-to-br ${currentTrack.accent} p-6 sm:p-8 text-ivory shadow-card`}
         >
           <p className="text-sm font-bold uppercase tracking-[0.35em] text-gold-light">Lecture en cours</p>
           <h2 className="mt-4 font-display text-4xl">{currentTrack.title}</h2>

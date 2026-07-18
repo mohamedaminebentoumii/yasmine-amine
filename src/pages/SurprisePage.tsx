@@ -14,7 +14,7 @@ export function SurprisePage() {
         description="Une interaction simple, sans librairie externe, avec un petit effet de confettis leger en canvas."
       />
 
-      <section className="glass-card relative mx-auto max-w-4xl overflow-hidden p-8 sm:p-12">
+      <section className="glass-card relative mx-auto max-w-4xl overflow-hidden p-6 sm:p-12">
         <ConfettiCanvas active={revealed} />
 
         <div className="relative z-10 text-center">

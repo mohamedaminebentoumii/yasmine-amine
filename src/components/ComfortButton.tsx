@@ -5,8 +5,8 @@ export function ComfortButton() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className="glass-card p-7">
-      <div className="glass-inset p-7">
+    <section className="glass-card p-5 sm:p-7">
+      <div className="glass-inset p-5 sm:p-7">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold">

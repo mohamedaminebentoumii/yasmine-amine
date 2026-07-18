@@ -23,9 +23,9 @@ export function LetterPage() {
         description="Une lettre plus intime, ecrite pour Yasmine et pour tout ce que votre histoire fait naitre de beau."
       />
 
-      <section className="glass-card mx-auto max-w-4xl p-8 sm:p-10">
-        <div className="glass-inset p-8">
-          <pre className="whitespace-pre-wrap font-body text-lg leading-9 text-ivory/90">
+      <section className="glass-card mx-auto max-w-4xl p-5 sm:p-10">
+        <div className="glass-inset p-5 sm:p-8">
+          <pre className="whitespace-pre-wrap font-body text-base leading-8 text-ivory/90 sm:text-lg sm:leading-9">
             {romanticLetter}
           </pre>
         </div>
